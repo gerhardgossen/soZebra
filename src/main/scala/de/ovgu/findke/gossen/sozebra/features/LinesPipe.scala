@@ -21,10 +21,10 @@ abstract class LinesPipe extends Pipe {
     def lineValues (message: Message): List[Double]
 
     protected def withLines (message: Message)(func: (String) => Double): List[Double] = {
-        message.lines map { func(_) }
+        message.lines map func
     }
 
     protected def withTokenizedLines (message: Message)(func: (TokenSequence) => Double): List[Double] = {
-        message.tokenizedLines map { func(_) }
+        message.tokenizedLines map func
     }
 }
