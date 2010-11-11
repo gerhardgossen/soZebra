@@ -3,7 +3,7 @@ package de.ovgu.findke.gossen.sozebra
 import cc.mallet.types._
 import scala.collection.JavaConversions._
 
-class MessageIterator(withLabels: Boolean) extends Iterator[Instance] {
+class MessageIterator(withLabels: Boolean) extends java.util.Iterator[Instance] {
     // workaroud for missing ResultSet#hasNext
     private var didNext = false
     private var hasNextVal = false
@@ -81,4 +81,6 @@ class MessageIterator(withLabels: Boolean) extends Iterator[Instance] {
         didNext = false;
         return new Instance(data, target, name, source)
     }
+
+    def remove = throw new UnsupportedOperationException
 }
