@@ -8,7 +8,7 @@ class MessageIterator(withLabels: Boolean) extends java.util.Iterator[Instance] 
     // workaroud for missing ResultSet#hasNext
     private var didNext = false
     private var hasNextVal = false
-    protected val cursor = getCursor(withLabels)
+    protected val (connection, cursor) = getCursor(withLabels)
 
     private def getCursor(withLabels: Boolean) = {
         import java.sql._
@@ -18,7 +18,7 @@ class MessageIterator(withLabels: Boolean) extends java.util.Iterator[Instance] 
         con.setAutoCommit(false);
 
         val stmt = con.createStatement();
-        stmt.setFetchSize(50);
+        stmt.setFetchSize(10);
         val rs = stmt.executeQuery("""
                 SELECT messageid, body, to_email, to_name, cc_email, cc_name,
                         bcc_email, bcc_name, sender_email, sender_name, subject
@@ -27,7 +27,7 @@ class MessageIterator(withLabels: Boolean) extends java.util.Iterator[Instance] 
                 FROM complete_messages
             """ + (if (withLabels) " NATURAL RIGHT JOIN message_annotations" else "")
             );
-        rs
+        (con, rs)
     }
 
     private def getParticipants (cursor: java.sql.ResultSet, field: String): List[Participant] = {
@@ -50,6 +50,10 @@ class MessageIterator(withLabels: Boolean) extends java.util.Iterator[Instance] 
         if (!didNext) {
             hasNextVal = cursor.next();
             didNext = true;
+        }
+        if (!hasNextVal && cursor != null) {
+            cursor.close
+            connection.close
         }
         return hasNextVal;
     }
