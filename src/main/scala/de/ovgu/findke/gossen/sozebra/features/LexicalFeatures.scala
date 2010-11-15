@@ -15,7 +15,7 @@ class FragmentContainsSenderName extends LinesPipe {
             new Regex(senderNameRE)
         }
         withTokenizedLines(m) { l =>
-            if (l.iterator exists { case senderName() => true })
+            if (l.iterator exists { case senderName() => true; case _ => false })
                 1.0
             else
                 0.0
@@ -69,7 +69,7 @@ class FragmentContainsSenderInitials extends LinesPipe {
                 val name = senderName.substring(commaPos + 1 ) +
                     " " + senderName.substring(0, commaPos)
             }
-            name.split("\\s+").map { _.substring(0,1) }.toList
+            name.split("\\s+").map { s => s.substring(0, 1.min(s.length)) }.toList
     }
 }
 
