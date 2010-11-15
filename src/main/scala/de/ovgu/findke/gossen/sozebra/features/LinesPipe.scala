@@ -6,13 +6,14 @@ import de.ovgu.findke.gossen.sozebra.{Implicits, Message}
 import Implicits._
 
 abstract class LinesPipe extends Pipe {
-    private val idx = getAlphabet lookupIndex(getClass, true)
+    private def label(inst: Instance) = inst.getAlphabet lookupIndex(getClass, true)
     override def pipe (inst: Instance) : Instance = {
         val message = inst.getSource.asInstanceOf[Message]
 
         val data = inst.getData.asInstanceOf[FeatureVectorSequence]
+        val l = label(inst)
         data.iterator zip lineValues(message) foreach { case (v, c) =>
-            v.setValue( idx, c )
+            v.setValue( l, c )
         }
 
         inst

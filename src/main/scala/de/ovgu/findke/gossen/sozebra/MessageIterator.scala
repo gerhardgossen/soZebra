@@ -2,6 +2,7 @@ package de.ovgu.findke.gossen.sozebra
 
 import cc.mallet.types._
 import scala.collection.JavaConversions._
+import scala.collection.mutable.{ArrayBuffer,Buffer}
 
 class MessageIterator(withLabels: Boolean) extends java.util.Iterator[Instance] {
     // workaroud for missing ResultSet#hasNext
@@ -36,7 +37,10 @@ class MessageIterator(withLabels: Boolean) extends java.util.Iterator[Instance] 
     }
 
     private def sqlArrayToList[T] (array: java.sql.Array): List[T] = {
-        array.getArray.asInstanceOf[Array[T]] toList
+        array match {
+            case null  => List[T]()
+            case array => array.getArray.asInstanceOf[Array[T]] toList
+        }
     }
 
     private val labelAlphabet = new LabelAlphabet
@@ -67,13 +71,13 @@ class MessageIterator(withLabels: Boolean) extends java.util.Iterator[Instance] 
         lineTokenSequence.addAll(source.lines map { new Token(_) })
         val data = new FeatureVectorSequence(new Alphabet, lineTokenSequence) // attributes
         val target = if (withLabels) {
-            val values = sqlArrayToList[String](cursor.getArray("values"))
-            val lines  = sqlArrayToList[String](cursor.getArray("linenumbers"))
-            val labels = new Array[Label](lineTokenSequence.size)
+            val values = sqlArrayToList[Int](cursor.getArray("values"))
+            val lines  = sqlArrayToList[Int](cursor.getArray("linenumbers"))
+            val labels: Buffer[Label] = ArrayBuffer.fill(1 + lines.max)(labelAlphabet.lookupLabel(0, true))
             (lines zip values) foreach { case (line, value) =>
-                labels(Integer.parseInt(line)) = labelAlphabet.lookupLabel(value, true)
+                labels(line.intValue) = labelAlphabet.lookupLabel(value, true)
             }
-            new LabelSequence(labels)
+            new LabelSequence(labels toArray)
         } else
             null // class label, TODO
         val name = cursor.getString("messageid")
