@@ -52,7 +52,7 @@ class NumberOfCapitalisedWords extends CapitalisedWords {
 class PercentageOfCapitalisedWords extends CapitalisedWords {
     def lineValues(m: Message) = {
         withTokenizedLines(m) { ts =>
-            numberOfCapitalisedWords(ts) / ts.size
+            if (ts.size > 0) numberOfCapitalisedWords(ts) / ts.size else 0
         }
     }
 }
@@ -72,7 +72,7 @@ class NumberOfNonAlphanumerics extends NonAlphanumericChars {
 class PercentageOfNonAlphanumerics extends NonAlphanumericChars {
     def lineValues (m: Message) = {
         withLines(m) { l =>
-            numberOfNonAlphanumerics(l) / l.length
+            if (l.length > 0) numberOfNonAlphanumerics(l) / l.length else 0
         }
     }
 }
@@ -92,7 +92,7 @@ class NumberOfNumerics extends NumericChars {
 class PercentageOfNumerics extends NumericChars {
     def lineValues (m: Message) = {
         withLines(m) { l =>
-            numberOfNumerics(l) / l.length
+            if (l.length > 0) numberOfNumerics(l) / l.length else 0
         }
     }
 }
