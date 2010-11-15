@@ -1,7 +1,7 @@
 package de.ovgu.findke.gossen.sozebra.features
 
 import cc.mallet.pipe.{Pipe}
-import cc.mallet.types.{FeatureVectorSequence, Instance, TokenSequence}
+import cc.mallet.types.{FeatureVectorSequence, Instance, TokenSequence, AugmentableFeatureVector}
 import de.ovgu.findke.gossen.sozebra.{Implicits, Message}
 import Implicits._
 
@@ -13,7 +13,10 @@ abstract class LinesPipe extends Pipe {
         val data = inst.getData.asInstanceOf[FeatureVectorSequence]
         val l = label(inst)
         data.iterator zip lineValues(message) foreach { case (v, c) =>
-            v.setValue( l, c )
+            v match {
+                case av:AugmentableFeatureVector => av.add(l, c)
+                case v                           => v.setValue(l, c)
+            }
         }
 
         inst
