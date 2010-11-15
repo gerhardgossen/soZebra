@@ -43,7 +43,8 @@ class MessageIterator(withLabels: Boolean) extends java.util.Iterator[Instance] 
         }
     }
 
-    private val labelAlphabet = new LabelAlphabet
+    val labelAlphabet = new LabelAlphabet
+    private val featureAlphabet = new Alphabet
 
     def hasNext: Boolean = {
         if (!didNext) {
@@ -69,7 +70,7 @@ class MessageIterator(withLabels: Boolean) extends java.util.Iterator[Instance] 
         )
         val lineTokenSequence = new TokenSequence()
         lineTokenSequence.addAll(source.lines map { new Token(_) })
-        val data = new FeatureVectorSequence(new Alphabet, lineTokenSequence) // attributes
+        val data = new FeatureVectorSequence(featureAlphabet, lineTokenSequence, false, true, true) // attributes
         val target = if (withLabels) {
             val values = sqlArrayToList[Int](cursor.getArray("values"))
             val lines  = sqlArrayToList[Int](cursor.getArray("linenumbers"))
